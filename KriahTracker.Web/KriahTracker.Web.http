@@ -1,0 +1,6 @@
+@KriahTracker.Web_HostAddress = http://localhost:5069
+
+GET {{KriahTracker.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
