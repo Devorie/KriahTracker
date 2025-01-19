@@ -22,7 +22,7 @@ const UpdateYear = () => {
 
     const onConfirmUpdateClick = async () => {
         await axios.post(`/api/kriahtracker/updateYear?yearName=${yearName}`);
-        navigate('/');
+        navigate('/editclass');
     }
 
     return (

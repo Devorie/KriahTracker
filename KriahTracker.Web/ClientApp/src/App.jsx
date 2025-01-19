@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout from './components/NewLayout';
 import Home from './Pages/HomePage';
 import Signup from './Pages/Signup';
 import Login from './Pages/Login';
@@ -13,6 +13,10 @@ import AddStudentPage from './Pages/AddStudentPage';
 import ViewStudentHistory from './Pages/ViewStudentHistory';
 import StudentMarking from './Pages/StudentMarking';
 import UpdateYear from './Pages/UpdateYear';
+import TaskTable from './Pages/TaskTable';
+import EditClass from './Pages/EditClass';
+import ManageTutorsPage from './Pages/ManageTutorsPage';
+import StudentsByTutor from './Pages/StudentsByTutor';
 
 const App = () => {
     return (
@@ -34,16 +38,36 @@ const App = () => {
                             <StudentMarking />
                         //</PrivateRoute>
                     } />  
+                    <Route path='/managetutors' element={
+                        //<PrivateRoute>
+                        <ManageTutorsPage />
+                        //</PrivateRoute>
+                    } /> 
+                    <Route path='/tasktable' element={
+                        //<PrivateRoute>
+                        <TaskTable />
+                        //</PrivateRoute>
+                    } />
                     <Route path='/updateyear' element={
                         //<PrivateRoute>
                         <UpdateYear />
                         //</PrivateRoute>
-                    } />  
+                    } /> 
+                    <Route path='/editclass' element={
+                        //<PrivateRoute>
+                        <EditClass />
+                        //</PrivateRoute>
+                    } /> 
                     <Route path='/viewstudenthistory' element={
                         //<PrivateRoute>
                             <ViewStudentHistory />
                         //</PrivateRoute>
                     } />   
+                    <Route path='/studentsbytutor' element={
+                        //<PrivateRoute>
+                        <StudentsByTutor />
+                        //</PrivateRoute>
+                    } /> 
                     <Route path='/upload' element={
                             //<PrivateRoute>
                             <Upload />

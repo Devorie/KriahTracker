@@ -11,6 +11,9 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Runtime.ExceptionServices;
 using System.Security.Claims;
+using KriahTracker.Data.Migrations;
+using static Azure.Core.HttpHeader;
+using static System.Collections.Specialized.BitVector32;
 
 namespace KriahTracker.Data
 {
@@ -55,6 +58,48 @@ namespace KriahTracker.Data
                     }
                 }
                 
+            }
+            return studentsView;
+        }
+
+        public List<StudentView> GetByTutor(int tutorId)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            Year year = context.Years.OrderByDescending(y => y.Name).FirstOrDefault();
+            List<Student> students = context.Students
+                    .Include(s => s.InfoByYear)
+                    .Where(s => s.InfoByYear.Any(info =>
+                        info.TermOneTutorId == tutorId ||
+                        info.TermTwoTutorId == tutorId ||
+                        info.TermThreeTutorId == tutorId))
+                    .ToList();
+            List<StudentView> studentsView = new();
+            foreach (Student s in students)
+            {
+                if (s.InfoByYear.Any(i => i.YearId == year.Id))
+                {
+                    string c = null;
+                    if (s.InfoByYear.Count > 0)
+                    {
+                        c = s.InfoByYear.FirstOrDefault(i => i.YearId == year.Id).Class;
+                    }
+                    studentsView.Add(new()
+                    {
+                        Id = s.Id,
+                        FirstName = s.FirstName,
+                        LastName = s.LastName,
+                        BirthDay = s.BirthDay,
+                        Class = c,
+                        CurrentYear = year,
+                        InfoByYear = s.InfoByYear
+
+                    });
+                    foreach (StudentInfoByYear info in s.InfoByYear)
+                    {
+                        info.Year = context.Years.FirstOrDefault(y => y.Id == info.YearId);
+                    }
+                }
+
             }
             return studentsView;
         }
@@ -150,7 +195,7 @@ namespace KriahTracker.Data
             context.Database.ExecuteSqlInterpolated($"INSERT INTO Students (FirstName, LastName, BirthDay) VALUES ({s.FirstName}, {s.LastName}, {s.BirthDay:yyyy-MM-dd}); INSERT INTO StudentInfoByYears (StudentId, Class, YearId) VALUES (SCOPE_IDENTITY(), {s.Class}, {year.Id});");
         }
 
-        public void AddMark(int term, int studentId, string accuracy, string fluency, string notes, string action)
+        public void AddEditMark(int term, int studentId, string accuracy, string fluency, string notes, string action)
         {
             using var context = new KriahTrackerDataContext(_connectionString);
             Year year = context.Years.OrderByDescending(y => y.Name).FirstOrDefault();
@@ -185,11 +230,81 @@ namespace KriahTracker.Data
             context.SaveChanges();
         }
 
+        public void EditClass(List<EditClass> editClasses)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            Year year = context.Years.OrderByDescending(y => y.Name).FirstOrDefault();
+            foreach (var editClass in editClasses)
+            {
+                context.StudentInfoByYears
+                    .Where(i => i.StudentId == editClass.StudentId && i.YearId == year.Id)
+                    .ExecuteUpdate(setters => setters
+                        .SetProperty(s => s.Class, editClass.NewClass));
+            }
+
+            context.SaveChanges();
+        }
+
+        public void AddTask(int id, string task)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            Year year = context.Years.OrderByDescending(y => y.Name).FirstOrDefault();
+            Student student = context.Students.FirstOrDefault(student => student.Id == id);
+            string className = context.StudentInfoByYears.FirstOrDefault(info => info.StudentId == id && info.YearId == year.Id).Class;
+            context.Tasks.Add(new TaskItem
+            {
+                TaskName = task,
+                StudentId = id,
+                StudentName = $"{student.FirstName} {student.LastName}",
+                StudentClass = className,
+                //TaskDate = DateTime.Now
+            });
+            context.SaveChanges();
+        }
+
+        public void AddTutor(string tutorName)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            context.Tutor.Add(new ()
+            {
+                Name = tutorName,
+                DateAdded = DateTime.Now
+            });
+            context.SaveChanges();
+        }
+
+        public void UpdateTutor(int id, string edited)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            context.Database.ExecuteSqlInterpolated(
+               $"UPDATE Tutors SET Name = {edited} WHERE Id = {id}");
+        }
+
+        public void RemoveTutor(int id)
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            _ = context.Database.ExecuteSqlInterpolated(
+               $"UPDATE Tutors SET Removed = {true}, DateRemoved = {DateTime.Now} WHERE Id = {id}");
+        }
+
         public string GetYear()
         {
             using var context = new KriahTrackerDataContext(_connectionString);
             Year year = context.Years.OrderByDescending(y => y.Name).FirstOrDefault();
             return year.Name;
+        }
+
+        public List<Tutor> GetTutors()
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            return context.Tutor.OrderBy(t => t.Name).ToList();
+        }
+
+        public List<TaskItem> GetTasks()
+        {
+            using var context = new KriahTrackerDataContext(_connectionString);
+            //return context.Tasks.OrderByDescending(t => t.TaskDate).ToList();
+            return context.Tasks.ToList();
         }
 
 

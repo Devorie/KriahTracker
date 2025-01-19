@@ -3,7 +3,7 @@ import StudentView from "../components/StudentsView";
 const ViewStudentHistory = () => {
 
     return (
-        <StudentView marking={false} />
+        <StudentView marking={false} editClass={false} />
     );
 }
 

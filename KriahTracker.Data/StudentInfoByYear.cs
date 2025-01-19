@@ -13,19 +13,31 @@ namespace KriahTracker.Data
         public int StudentId { get; set; }
         public int YearId { get; set; }
         public string Class { get; set; }
+
         public string AccuracyTermOne { get; set; }
         public string FluencyTermOne { get; set; }
         public string NotesTermOne { get; set; }
         public string ActionTermOne { get; set; }
+
         public string AccuracyTermTwo { get; set; }
         public string FluencyTermTwo { get; set; }
         public string NotesTermTwo { get; set; }
         public string ActionTermTwo { get; set; }
+
         public string AccuracyTermThree { get; set; }
         public string FluencyTermThree { get; set; }
         public string NotesTermThree { get; set; }
         public string ActionTermThree { get; set; }
 
+        public int? TermOneTutorId { get; set; }
+        public int? TermTwoTutorId { get; set; }
+        public int? TermThreeTutorId { get; set; }
+
+        public Tutor TermOneTutor { get; set; }
+        public Tutor TermTwoTutor { get; set; }
+        public Tutor TermThreeTutor { get; set; }
+
         public Year Year { get; set; }
     }
+
 }

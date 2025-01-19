@@ -19,9 +19,13 @@ namespace KriahTracker.Web.Controllers
 
         [HttpGet]
         [Route("getStudents")]
-        public List<StudentView> GetStudents()
+        public List<StudentView> GetStudents(int tutorId)
         {
             var repo = new StudentRepository(_connectionString);
+            if (tutorId > 0)
+            {
+                return repo.GetByTutor(tutorId);
+            }
             return repo.GetAll();
 
         }
@@ -31,6 +35,22 @@ namespace KriahTracker.Web.Controllers
         {
             var repo = new StudentRepository(_connectionString);
             return repo.GetInfo(id);
+
+        }
+
+        [HttpGet("getTutors")]
+        public List<Tutor> GetTutors()
+        {
+            var repo = new StudentRepository(_connectionString);
+            return repo.GetTutors();
+
+        }
+
+        [HttpGet("getListOfTasks")]
+        public List<TaskItem> GetListOfTasks()
+        { 
+            var repo = new StudentRepository(_connectionString);
+            return repo.GetTasks();
 
         }
 
@@ -79,11 +99,25 @@ namespace KriahTracker.Web.Controllers
             //}
         }
 
-        [HttpPost("addMark")]
-        public void AddMark(AddMarkViewModel vm)
+        [HttpPost("addEditMark")]
+        public void AddEditMark(AddEditMarkViewModel vm)
         {
             var repo = new StudentRepository(_connectionString);
-            repo.AddMark(vm.Term, vm.StudentId, vm.Accuracy, vm.Fluency, vm.Notes, vm.Action);
+            repo.AddEditMark(vm.Term, vm.StudentId, vm.Accuracy, vm.Fluency, vm.Notes, vm.Action);
+        }
+
+        [HttpPost("editClass")]
+        public void EditClass(List<EditClass> editClasses)
+        {
+            var repo = new StudentRepository(_connectionString);
+            repo.EditClass(editClasses);
+        }
+
+        [HttpPost("addTask")]
+        public void AddTask(AddTaskViewModel vm)
+        {
+            var repo = new StudentRepository(_connectionString);
+            repo.AddTask(vm.Id, vm.Task);
         }
 
         [HttpPost("updateYear")]
@@ -91,6 +125,27 @@ namespace KriahTracker.Web.Controllers
         {
             var repo = new StudentRepository(_connectionString);
             repo.UpdateYear(yearName);
+        }
+
+        [HttpPost("addTutor")]
+        public void AddTutor(string tutorName)
+        {
+            var repo = new StudentRepository(_connectionString);
+            repo.AddTutor(tutorName);
+        }
+
+        [HttpPost("updateTutor")]
+        public void UpdateTutor(TutorViewModel vm)
+        {
+            var repo = new StudentRepository(_connectionString);
+            repo.UpdateTutor(vm.Id, vm.EditedTutor);
+        }
+
+        [HttpPost("removeTutor")]
+        public void RemoveTutor(int id)
+        {
+            var repo = new StudentRepository(_connectionString);
+            repo.RemoveTutor(id);
         }
     }
 }
